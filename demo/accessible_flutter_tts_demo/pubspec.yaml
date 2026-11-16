@@ -13,7 +13,7 @@ dependencies:
     path: ../demo_screen
   accessible_flutter_tts:
     git:
-      url: https://github.com/BLKKKBVSIK/flutter_tts.git
+      url: https://github.com/BLKKKBVSIK/accessible_flutter_tts.git
       ref: v4.2.5-ezymob.2
 
 dev_dependencies:

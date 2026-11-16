@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 A flutter text to speech plugin
                        DESC
-  s.homepage         = 'https://github.com/BLKKKBVSIK/flutter_tts'
+  s.homepage         = 'https://github.com/BLKKKBVSIK/accessible_flutter_tts'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'eyedeadevelopment' => 'eyedea32@gmail.com' }
   s.source           = { :path => '.' }

@@ -1,9 +1,9 @@
 name: accessible_flutter_tts
 description: Drop-in replacement for flutter_tts that waits for VoiceOver or TalkBack to finish and speaks at the screen reader's speed.
 version: 1.0.0
-homepage: https://github.com/BLKKKBVSIK/flutter_tts
-repository: https://github.com/BLKKKBVSIK/flutter_tts
-issue_tracker: https://github.com/BLKKKBVSIK/flutter_tts/issues
+homepage: https://github.com/BLKKKBVSIK/accessible_flutter_tts
+repository: https://github.com/BLKKKBVSIK/accessible_flutter_tts
+issue_tracker: https://github.com/BLKKKBVSIK/accessible_flutter_tts/issues
 topics:
   - accessibility
   - tts

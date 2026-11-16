@@ -4,7 +4,7 @@
 [flutter_tts](https://pub.dev/packages/flutter_tts) 4.2.5: same `FlutterTts` class, same methods,
 one import line to change.
 
-![flutter_tts speaks over VoiceOver and ignores its speed. accessible_flutter_tts waits for VoiceOver to finish and uses its speed.](https://raw.githubusercontent.com/BLKKKBVSIK/flutter_tts/main/doc/images/hero.png)
+![flutter_tts speaks over VoiceOver and ignores its speed. accessible_flutter_tts waits for VoiceOver to finish and uses its speed.](https://raw.githubusercontent.com/BLKKKBVSIK/accessible_flutter_tts/main/doc/images/hero.png)
 
 ## Why
 
@@ -31,15 +31,15 @@ unchanged.
 In this real iPhone recording, VoiceOver reads a text, and the app calls `speak()` half a second
 later, while VoiceOver is still talking.
 
-[![Timeline of the recording: flutter_tts talks over VoiceOver for 4.7 seconds; accessible_flutter_tts waits for VoiceOver to finish, then speaks 0.32 seconds later.](https://raw.githubusercontent.com/BLKKKBVSIK/flutter_tts/main/doc/images/overlap_timeline.png)](https://github.com/BLKKKBVSIK/flutter_tts/blob/main/doc/media/overlap_demo.mp4)
+[![Timeline of the recording: flutter_tts talks over VoiceOver for 4.7 seconds; accessible_flutter_tts waits for VoiceOver to finish, then speaks 0.32 seconds later.](https://raw.githubusercontent.com/BLKKKBVSIK/accessible_flutter_tts/main/doc/images/overlap_timeline.png)](https://github.com/BLKKKBVSIK/accessible_flutter_tts/blob/main/doc/media/overlap_demo.mp4)
 
-▶️ **[Listen to the recording](https://github.com/BLKKKBVSIK/flutter_tts/blob/main/doc/media/overlap_demo.mp4)**
+▶️ **[Listen to the recording](https://github.com/BLKKKBVSIK/accessible_flutter_tts/blob/main/doc/media/overlap_demo.mp4)**
 (30 s, sound on).
 
 The speed follows the user's settings too. Same sentence, same rate set by the app (0.5), with the
 screen reader at different speeds:
 
-![Sentence duration: flutter_tts always takes 7.2 seconds. accessible_flutter_tts takes 1.7 s with VoiceOver fast, 10.2 s with VoiceOver slow, 2.1 s with TalkBack at 3.69x and 4.6 s with TalkBack at 1.58x.](https://raw.githubusercontent.com/BLKKKBVSIK/flutter_tts/main/doc/images/speed_chart.png)
+![Sentence duration: flutter_tts always takes 7.2 seconds. accessible_flutter_tts takes 1.7 s with VoiceOver fast, 10.2 s with VoiceOver slow, 2.1 s with TalkBack at 3.69x and 4.6 s with TalkBack at 1.58x.](https://raw.githubusercontent.com/BLKKKBVSIK/accessible_flutter_tts/main/doc/images/speed_chart.png)
 
 ## Getting started
 
@@ -266,7 +266,7 @@ tts.setContinueHandler(() => setState(() => ttsState = TtsState.continued));
 
 ## Example
 
-The [example app](https://github.com/BLKKKBVSIK/flutter_tts/tree/main/example) puts flutter_tts and
+The [example app](https://github.com/BLKKKBVSIK/accessible_flutter_tts/tree/main/example) puts flutter_tts and
 accessible_flutter_tts side by side. Turn VoiceOver or TalkBack on and compare.
 
 ## Author
