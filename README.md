@@ -269,7 +269,9 @@ tts.setContinueHandler(() => setState(() => ttsState = TtsState.continued));
 The [example app](https://github.com/BLKKKBVSIK/flutter_tts/tree/main/example) puts flutter_tts and
 accessible_flutter_tts side by side. Turn VoiceOver or TalkBack on and compare.
 
-## Credits
+## Author
+
+Made by **Enzo Conty** ([contact@enzoconty.dev](mailto:contact@enzoconty.dev)) at Ezymob.
 
 accessible_flutter_tts is a fork of [flutter_tts](https://github.com/dlutton/flutter_tts) by
-Daniel Lutton and its contributors, maintained by Ezymob. MIT license.
+Daniel Lutton and its contributors. MIT license.
