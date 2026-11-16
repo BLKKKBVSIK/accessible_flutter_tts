@@ -1,124 +1,131 @@
 # accessible_flutter_tts
 
-A drop-in replacement for [flutter_tts](https://github.com/dlutton/flutter_tts) 4.2.5 that stays out
-of the way of screen readers.
+**Text-to-speech that respects VoiceOver and TalkBack.** A drop-in replacement for
+[flutter_tts](https://pub.dev/packages/flutter_tts) 4.2.5: same `FlutterTts` class, same methods,
+one import line to change.
 
-- **No screen reader running:** behaves exactly like flutter_tts.
-- **VoiceOver or TalkBack running:** speech waits for the screen reader to finish talking, and uses
-  the screen reader's speed instead of the rate set by the app.
+![flutter_tts speaks over VoiceOver and ignores its speed. accessible_flutter_tts waits for VoiceOver to finish and uses its speed.](https://raw.githubusercontent.com/BLKKKBVSIK/flutter_tts/main/doc/images/hero.png)
 
-## Switching from flutter_tts
+## Why
 
-Replace the dependency:
+Blind and low-vision users set their screen reader's speed to what suits them, often much faster
+than the default. An app that announces something with flutter_tts gets in their way twice:
 
-```yaml
-dependencies:
-  accessible_flutter_tts:
-    git:
-      url: https://github.com/BLKKKBVSIK/flutter_tts.git
-      ref: v4.2.5-ezymob.2
+- **It talks over the screen reader.** On iOS, the announcement starts while VoiceOver is still
+  reading, and the user hears two voices at once.
+- **It ignores the user's speed.** The app's speech rate is used, so the announcement is too slow
+  for someone used to a fast screen reader, or too fast for someone who slowed it down.
+
+accessible_flutter_tts fixes both, automatically:
+
+| | Screen reader off | VoiceOver or TalkBack on |
+|---|---|---|
+| **When speech starts** | right away, like flutter_tts | after the screen reader finishes talking |
+| **Speech speed** | the rate set by the app, like flutter_tts | the screen reader's speed |
+
+There is nothing to configure. Without a screen reader, the plugin runs flutter_tts's code
+unchanged.
+
+## See (and hear) the difference
+
+In this real iPhone recording, VoiceOver reads a text, and the app calls `speak()` half a second
+later, while VoiceOver is still talking.
+
+[![Timeline of the recording: flutter_tts talks over VoiceOver for 4.7 seconds; accessible_flutter_tts waits for VoiceOver to finish, then speaks 0.32 seconds later.](https://raw.githubusercontent.com/BLKKKBVSIK/flutter_tts/main/doc/images/overlap_timeline.png)](https://github.com/BLKKKBVSIK/flutter_tts/blob/main/doc/media/overlap_demo.mp4)
+
+▶️ **[Listen to the recording](https://github.com/BLKKKBVSIK/flutter_tts/blob/main/doc/media/overlap_demo.mp4)**
+(30 s, sound on).
+
+The speed follows the user's settings too. Same sentence, same rate set by the app (0.5), with the
+screen reader at different speeds:
+
+![Sentence duration: flutter_tts always takes 7.2 seconds. accessible_flutter_tts takes 1.7 s with VoiceOver fast, 10.2 s with VoiceOver slow, 2.1 s with TalkBack at 3.69x and 4.6 s with TalkBack at 1.58x.](https://raw.githubusercontent.com/BLKKKBVSIK/flutter_tts/main/doc/images/speed_chart.png)
+
+## Getting started
+
+Add the package:
+
+```sh
+flutter pub add accessible_flutter_tts
 ```
 
-and the import:
+Then change the import:
 
 ```dart
-import 'package:accessible_flutter_tts/flutter_tts.dart';
+// Before
+import 'package:flutter_tts/flutter_tts.dart';
+
+// After
+import 'package:accessible_flutter_tts/accessible_flutter_tts.dart';
 ```
 
-Nothing else changes: same `FlutterTts` class, same methods and arguments. The screen reader
-behaviour turns on by itself.
+That's it. Your existing code keeps working:
 
-The plugin uses its own platform channel and native class names, so it can sit in the same app as
-flutter_tts.
+```dart
+final tts = FlutterTts();
 
-## How it works with a screen reader
-
-- **iOS:** while the app is in the foreground, the text is handed to VoiceOver as a queued
-  announcement: VoiceOver reads it after its current phrase, with its own voice and speed. `stop`
-  can't take it back from VoiceOver. In the background, VoiceOver doesn't read announcements, so
-  the plugin speaks itself with VoiceOver's voice and speed, without waiting.
-- **Android (8+):** `speak` waits while TalkBack is playing speech, then speaks after 300 ms of
-  silence, or after 10 s at most. The speed comes from the phone's text-to-speech settings.
-
-The rest of this file is flutter_tts's documentation, which applies unchanged.
-
-## Features
-
-- [x] Android, iOS, Web, Windows & macOS
-  - [x] speak
-  - [x] stop
-  - [x] get languages
-  - [x] set language
-  - [x] set speech rate
-  - [x] set speech volume
-  - [x] set speech pitch
-  - [x] get voices
-  - [x] set voice
-- [x] Android, iOS, Web & macOS
-  - [x] is language available
-- [x] Android, iOS, Web
-  - [x] speech marks (requires iOS 7+, Android 26+, and default voice engine for web)
-- [x] Android, iOS
-  - [x] synthesize to file (requires iOS 13+)
-- [x] Android, iOS, Web, & Windows
-  - [x] pause
-- [x] Android
-  - [x] set silence
-  - [x] is language installed
-  - [x] are languages installed
-  - [x] get engines
-  - [x] set engine
-  - [x] get default engine
-  - [x] get default voice
-  - [x] set queue mode
-  - [x] get max speech input length
-- [x] iOS
-  - [x] set shared instance
-  - [x] set audio session category
-
-## Usage
-
-## macOS
-
-```bash
-OSX version: 10.15
+await tts.setLanguage('en-US');
+await tts.setSpeechRate(0.5); // Used when no screen reader is running.
+await tts.speak('Next stop, Gare de Lyon.');
 ```
 
-[Example App](https://github.com/dlutton/flutter_tts/tree/macOS_app) from the macOS_app branch
+The plugin has its own platform channel and native class names, so it can be installed next to
+flutter_tts in the same app, for example while you migrate.
 
-## Web
+> [!NOTE]
+> As with flutter_tts, create `FlutterTts` after Flutter has started: call
+> `WidgetsFlutterBinding.ensureInitialized()` first if you create it in `main`.
 
-[Website](https://dlutton.github.io/flutter_tts) from the example directory.
+## How it works
 
-**Progress updates on Web**
+### iOS
 
-Progress updates are only supported for native speech synsthesis. Use the default engine to ensure support for progress updates. [Chromium#41195426](https://issues.chromium.org/issues/41195426#comment8)
+- **App in the foreground:** the text is handed to VoiceOver as a queued announcement. VoiceOver
+  reads it after its current phrase, with the user's voice and speed.
+- **App in the background:** VoiceOver doesn't read announcements there, so the plugin speaks the
+  text itself, with VoiceOver's voice and speed
+  (`prefersAssistiveTechnologySettings`), without waiting.
 
-## Android
+### Android (8+)
 
-Change the minimum Android sdk version to 21 (or higher) in your `android/app/build.gradle` file.
+- A screen reader is detected by **touch exploration**, which TalkBack turns on. Other
+  accessibility services, such as Select to Speak, don't change anything.
+- `speak()` waits while the screen reader is playing speech, then speaks after 300 ms of silence,
+  or after 10 s at most.
+- Speech uses the phone's text-to-speech speed, which is the speed TalkBack's own slider sets.
+
+### Known limits
+
+- **iOS:** `stop()` can't take back an announcement already handed to VoiceOver.
+- **iOS:** text in another language than the phone's is read at that language's VoiceOver speed,
+  not the user's current one. iOS offers no way around it.
+- **iOS, background or locked screen:** iOS doesn't tell apps when VoiceOver is talking, so speech
+  may overlap VoiceOver there (for example while it reads a notification).
+
+## Tested on
+
+| Platform | Device | Result |
+|---|---|---|
+| iOS 27.2 | iPhone 17 Pro, VoiceOver on and off | waits for VoiceOver, follows its speed, same as flutter_tts without it |
+| Android 14 | Nothing Phone (1), TalkBack on and off | waits for TalkBack, follows its speed, same as flutter_tts without it |
+
+Both Swift Package Manager and CocoaPods are supported on iOS.
+
+**macOS, web and Windows** keep flutter_tts's code unchanged: they work like flutter_tts 4.2.5, with
+no screen reader handling.
+
+## Platform setup
+
+### Android
+
+Set the minimum SDK to 24 or higher in `android/app/build.gradle`:
 
 ```groovy
-minSdkVersion 21
+minSdkVersion 24
 ```
 
-**Update the Kotlin Gradle Plugin Version**
-
-Change the verision of the Kotlin Gradle plugin to `1.9.10`. <br>
-If your project was created with a version of Flutter before 3.19, go to the `android/build.gradle` file and update the `ext.kotlin_version`:
-```groovy
-ext.kotlin_version = '1.9.10'
-```
-
-Otherwise go to `android/settings.gradle` and update the verion of the plugin `org.jetbrains.kotlin.android`:
-```groovy
-id "org.jetbrains.kotlin.android" version "1.9.10" apply false
-```
-
-
-Apps targeting Android 11 that use text-to-speech should
-declare [`TextToSpeech.Engine.INTENT_ACTION_TTS_SERVICE`](https://developer.android.com/reference/android/speech/tts/TextToSpeech.Engine#INTENT_ACTION_TTS_SERVICE)
-in the `queries` elements of their manifest.
+Apps targeting Android 11 or later need to declare the text-to-speech service in the `queries` of
+`android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <queries>
@@ -128,186 +135,141 @@ in the `queries` elements of their manifest.
 </queries>
 ```
 
-### Pausing on Android
+### iOS
 
-Android TTS does not support the pause function natively, so we have implemented a work around. We utilize the native `onRangeStart()` method to determine the index of start when `pause` is invoked. We use that index to create a new text the next time `speak` is invoked.  Due to using `onRangeStart()`, pause works on SDK versions >= 26.  Also, if using `start` and `end` offsets inside of `setProgressHandler()`, you'll need to keep a track of them if using `pause` since they will update once the new text is created when `speak` is called after being paused.
+iOS 13 or later. No setup needed.
 
-```dart
-await flutterTts.pause()
-```
+### macOS
 
-## iOS
+macOS 10.15 or later.
 
-There's a known issue with integrating plugins that use Swift into a Flutter project created with the Objective-C template. [Flutter#16049](https://github.com/flutter/flutter/issues/16049)
+### Web
 
-[Example](https://github.com/dlutton/flutter_tts/blob/master/example/lib/main.dart)
+Progress updates only work with the browser's native speech synthesis. Use the default engine to
+get them ([Chromium#41195426](https://issues.chromium.org/issues/41195426#comment8)).
 
-To use this plugin :
+## API
 
-- add the dependency to your [pubspec.yaml](https://github.com/dlutton/flutter_tts/blob/master/example/pubspec.yaml) file.
+The API is the one of flutter_tts 4.2.5.
 
-```yaml
-  dependencies:
-    flutter:
-      sdk: flutter
-    flutter_tts:
-```
+### Features
 
-- instantiate FlutterTts
+| Feature | Android | iOS | macOS | Web | Windows |
+|---|:-:|:-:|:-:|:-:|:-:|
+| speak, stop | ✅ | ✅ | ✅ | ✅ | ✅ |
+| languages, rate, volume, pitch, voices | ✅ | ✅ | ✅ | ✅ | ✅ |
+| pause | ✅ (API 26+) | ✅ | | ✅ | ✅ |
+| is language available | ✅ | ✅ | ✅ | ✅ | |
+| progress (speech marks) | ✅ (API 26+) | ✅ | | ✅ | |
+| synthesize to file | ✅ | ✅ | | | |
+| engines, silence, queue mode, installed languages | ✅ | | | | |
+| shared instance, audio category | | ✅ | | | |
+| **waits for the screen reader, uses its speed** | ✅ | ✅ | | | |
 
-```dart
-FlutterTts flutterTts = FlutterTts();
-
-```
-
-To set shared audio [instance](https://developer.apple.com/documentation/avfoundation/avaudiosession/1616504-sharedinstance) (iOS only):
-
-```dart
-await flutterTts.setSharedInstance(true);
-```
-
-To set audio [category and options](https://developer.apple.com/documentation/avfoundation/avaudiosession) with optional [mode](https://developer.apple.com/documentation/avfaudio/avaudiosession/mode) (iOS only). The following setup allows background music and in-app audio session to continue simultaneously:
+### Speaking
 
 ```dart
-await flutterTts.setIosAudioCategory(IosTextToSpeechAudioCategory.ambient,
-     [
-          IosTextToSpeechAudioCategoryOptions.allowBluetooth,
-          IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
-          IosTextToSpeechAudioCategoryOptions.mixWithOthers
-     ],
-     IosTextToSpeechAudioMode.voicePrompt
+final tts = FlutterTts();
+
+await tts.speak('Hello World');
+await tts.stop();
+await tts.pause(); // Android (API 26+), iOS, web and Windows. See "Pausing on Android".
+
+List<dynamic> languages = await tts.getLanguages;
+await tts.setLanguage('en-US');
+await tts.isLanguageAvailable('en-US');
+
+await tts.setSpeechRate(0.5); // Ignored while a screen reader is running.
+await tts.setVolume(1.0);
+await tts.setPitch(1.0);
+
+// Each voice is a map containing at least `name` and `locale`.
+// - Windows (UWP voices) only: gender, identifier
+// - iOS, macOS only: quality, gender, identifier
+// - Android only: quality, latency, network_required, features
+List<Map> voices = await tts.getVoices;
+await tts.setVoice({'name': 'Karen', 'locale': 'en-AU'});
+await tts.setVoice({'identifier': 'com.apple.voice.compact.en-AU.Karen'}); // iOS, macOS
+
+// Wait for the end of the speech (or of the file synthesis) before returning.
+await tts.awaitSpeakCompletion(true);
+await tts.awaitSynthCompletion(true);
+
+// iOS, macOS and Android. The last argument is isFullPath (false by default).
+await tts.synthesizeToFile('Hello World', Platform.isAndroid ? 'tts.wav' : 'tts.caf', false);
+```
+
+### Android only
+
+```dart
+await tts.speak('Hello World', focus: true);
+await tts.setSilence(2);
+await tts.getEngines;
+await tts.getDefaultEngine;
+await tts.setEngine('com.google.android.tts');
+await tts.getDefaultVoice;
+await tts.isLanguageInstalled('en-AU');
+await tts.areLanguagesInstalled(['en-AU', 'en-US']);
+await tts.setQueueMode(1);
+await tts.getMaxSpeechInputLength;
+await tts.setAudioAttributesForNavigation();
+```
+
+#### Pausing on Android
+
+Android's text-to-speech can't pause, so the plugin works around it: it remembers where the speech
+was (from `onRangeStart()`, API 26+) and starts from there on the next `speak` call. If you use the
+`start` and `end` offsets of `setProgressHandler()` with `pause`, keep track of them: they restart
+from the new text after a pause.
+
+### iOS only
+
+Use the shared audio
+[instance](https://developer.apple.com/documentation/avfoundation/avaudiosession/1616504-sharedinstance):
+
+```dart
+await tts.setSharedInstance(true);
+```
+
+Set the audio [category and options](https://developer.apple.com/documentation/avfoundation/avaudiosession),
+with an optional [mode](https://developer.apple.com/documentation/avfaudio/avaudiosession/mode).
+This setup lets background music keep playing during the speech:
+
+```dart
+await tts.setIosAudioCategory(
+  IosTextToSpeechAudioCategory.ambient,
+  [
+    IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+    IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+    IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+  ],
+  IosTextToSpeechAudioMode.voicePrompt,
 );
 ```
 
-To await speak completion.
+### Callbacks
 
 ```dart
-await flutterTts.awaitSpeakCompletion(true);
+tts.setStartHandler(() => setState(() => ttsState = TtsState.playing));
+tts.setCompletionHandler(() => setState(() => ttsState = TtsState.stopped));
+tts.setCancelHandler(() => setState(() => ttsState = TtsState.stopped));
+tts.setErrorHandler((message) => setState(() => ttsState = TtsState.stopped));
+
+tts.setProgressHandler((String text, int start, int end, String word) {
+  setState(() => currentWord = word);
+});
+
+// Android, iOS and web
+tts.setPauseHandler(() => setState(() => ttsState = TtsState.paused));
+tts.setContinueHandler(() => setState(() => ttsState = TtsState.continued));
 ```
 
-To await synthesize to file completion.
+## Example
 
-```dart
-await flutterTts.awaitSynthCompletion(true);
-```
+The [example app](https://github.com/BLKKKBVSIK/flutter_tts/tree/main/example) puts flutter_tts and
+accessible_flutter_tts side by side. Turn VoiceOver or TalkBack on and compare.
 
-### speak, stop, getLanguages, setLanguage, setSpeechRate, getVoices, setVoice, setVolume, setPitch, isLanguageAvailable, setSharedInstance
+## Credits
 
-```dart
-Future _speak() async{
-    var result = await flutterTts.speak("Hello World");
-    if (result == 1) setState(() => ttsState = TtsState.playing);
-}
-
-Future _stop() async{
-    var result = await flutterTts.stop();
-    if (result == 1) setState(() => ttsState = TtsState.stopped);
-}
-
-List<dynamic> languages = await flutterTts.getLanguages;
-
-await flutterTts.setLanguage("en-US");
-
-await flutterTts.setSpeechRate(1.0);
-
-await flutterTts.setVolume(1.0);
-
-await flutterTts.setPitch(1.0);
-
-await flutterTts.isLanguageAvailable("en-US");
-
-// iOS, Android and Web only
-//see the "Pausing on Android" section for more info
-await flutterTts.pause();
-
-// iOS, macOS, and Android only
-// The last parameter is an optional boolean value for isFullPath (defaults to false)
-await flutterTts.synthesizeToFile("Hello World", Platform.isAndroid ? "tts.wav" : "tts.caf", false);
-
-// Each voice is a Map containing at least these keys: name, locale
-// - Windows (UWP voices) only: gender, identifier
-// - iOS, macOS only: quality, gender, identifier
-// - Android only: quality, latency, network_required, features 
-List<Map> voices = await flutterTts.getVoices;
-
-await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
-// iOS, macOS only
-await flutterTts.setVoice({"identifier": "com.apple.voice.compact.en-AU.Karen"});
-
-// iOS only
-await flutterTts.setSharedInstance(true);
-
-// Android only
-await flutterTts.speak("Hello World", focus: true);
-
-await flutterTts.setSilence(2);
-
-await flutterTts.getEngines;
-
-await flutterTts.getDefaultVoice;
-
-await flutterTts.isLanguageInstalled("en-AU");
-
-await flutterTts.areLanguagesInstalled(["en-AU", "en-US"]);
-
-await flutterTts.setQueueMode(1);
-
-await flutterTts.getMaxSpeechInputLength;
-
-await flutterTts.setAudioAttributesForNavigation();
-```
-
-### Listening for platform calls
-
-```dart
-flutterTts.setStartHandler(() {
-  setState(() {
-    ttsState = TtsState.playing;
-  });
-});
-
-flutterTts.setCompletionHandler(() {
-  setState(() {
-    ttsState = TtsState.stopped;
-  });
-});
-
-flutterTts.setProgressHandler((String text, int startOffset, int endOffset, String word) {
-  setState(() {
-    _currentWord = word;
-  });
-});
-
-flutterTts.setErrorHandler((msg) {
-  setState(() {
-    ttsState = TtsState.stopped;
-  });
-});
-
-flutterTts.setCancelHandler((msg) {
-  setState(() {
-    ttsState = TtsState.stopped;
-  });
-});
-
-// Android, iOS and Web
-flutterTts.setPauseHandler((msg) {
-  setState(() {
-    ttsState = TtsState.paused;
-  });
-});
-
-flutterTts.setContinueHandler((msg) {
-  setState(() {
-    ttsState = TtsState.continued;
-  });
-});
-
-```
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.dev/).
-
-For help on editing plugin code, view the [documentation](https://flutter.dev/platform-plugins/#edit-code).
+accessible_flutter_tts is a fork of [flutter_tts](https://github.com/dlutton/flutter_tts) by
+Daniel Lutton and its contributors, maintained by Ezymob. MIT license.

@@ -1,7 +1,22 @@
 name: accessible_flutter_tts
 description: Drop-in replacement for flutter_tts that waits for VoiceOver or TalkBack to finish and speaks at the screen reader's speed.
-version: 4.2.5+ezymob.2
+version: 1.0.0
 homepage: https://github.com/BLKKKBVSIK/flutter_tts
+repository: https://github.com/BLKKKBVSIK/flutter_tts
+issue_tracker: https://github.com/BLKKKBVSIK/flutter_tts/issues
+topics:
+  - accessibility
+  - tts
+  - text-to-speech
+  - screen-reader
+  - voiceover
+screenshots:
+  - description: flutter_tts speaks over VoiceOver; accessible_flutter_tts waits for it and uses its speed.
+    path: doc/images/hero.png
+  - description: Real iPhone recording, VoiceOver on. flutter_tts overlaps VoiceOver; accessible_flutter_tts waits.
+    path: doc/images/overlap_timeline.png
+  - description: Speech duration follows the VoiceOver or TalkBack speed instead of the app's rate.
+    path: doc/images/speed_chart.png
 
 dependencies:
   flutter:

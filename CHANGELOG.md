@@ -1,5 +1,15 @@
 # ChangeLog
 
+## 1.0.0
+
+First release on pub.dev, based on flutter_tts 4.2.5 and including every change of
+4.2.5+ezymob.1 and 4.2.5+ezymob.2 below.
+
+- **Android, iOS:** with TalkBack or VoiceOver running, `speak` waits for the screen reader to
+  finish talking and uses its speed. Without a screen reader, the plugin behaves like flutter_tts.
+- Same Dart API as flutter_tts 4.2.5: only the import line changes.
+- New README with illustrations from real recordings and measurements.
+
 ## 4.2.5+ezymob.2
 
 ### Fixes
